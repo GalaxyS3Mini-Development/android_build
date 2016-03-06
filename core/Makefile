@@ -1549,6 +1549,40 @@ $(INSTALLED_RECOVERYIMAGE_TARGET): $(MKBOOTIMG) $(recovery_ramdisk) $(recovery_k
 		$(call build-recoveryimage-target, $@)
 endif # BOARD_CUSTOM_BOOTIMG_MK
 
+# The system partition needs room for the recovery image as well.  We
+# now store the recovery image as a binary patch using the boot image
+# as the source (since they are very similar).  Generate the patch so
+# we can see how big it's going to be, and include that in the system
+# image size check calculation.
+ifneq ($(INSTALLED_RECOVERYIMAGE_TARGET),)
+ifneq ($(BOARD_USES_FULL_RECOVERY_IMAGE),true)
+ifneq (,$(filter true, $(BOARD_BUILD_SYSTEM_ROOT_IMAGE) $(BOARD_INCLUDE_RECOVERY_DTBO)))
+diff_tool := $(HOST_OUT_EXECUTABLES)/bsdiff
+else
+diff_tool := $(HOST_OUT_EXECUTABLES)/imgdiff
+endif
+ifeq ($(TARGET_NOT_USE_GZIP_RECOVERY_RAMDISK),true)
+diff_tool := $(HOST_OUT_EXECUTABLES)/bsdiff
+endif
+intermediates := $(call intermediates-dir-for,PACKAGING,recovery_patch)
+ifndef BOARD_CANT_BUILD_RECOVERY_FROM_BOOT_PATCH
+RECOVERY_FROM_BOOT_PATCH := $(intermediates)/recovery_from_boot.p
+else
+RECOVERY_FROM_BOOT_PATCH :=
+endif
+$(RECOVERY_FROM_BOOT_PATCH): PRIVATE_DIFF_TOOL := $(diff_tool)
+$(RECOVERY_FROM_BOOT_PATCH): \
+		$(INSTALLED_RECOVERYIMAGE_TARGET) \
+		$(INSTALLED_BOOTIMAGE_TARGET) \
+		$(diff_tool)
+	@echo "Construct recovery from boot"
+	mkdir -p $(dir $@)
+	$(PRIVATE_DIFF_TOOL) $(INSTALLED_BOOTIMAGE_TARGET) $(INSTALLED_RECOVERYIMAGE_TARGET) $@
+else # $(BOARD_USES_FULL_RECOVERY_IMAGE) == true
+RECOVERY_FROM_BOOT_PATCH := $(INSTALLED_RECOVERYIMAGE_TARGET)
+endif
+endif
+
 ifdef RECOVERY_RESOURCE_ZIP
 $(RECOVERY_RESOURCE_ZIP): $(INSTALLED_RECOVERYIMAGE_TARGET) | $(ZIPTIME)
 	$(hide) mkdir -p $(dir $@)
@@ -1687,42 +1721,6 @@ $(BUILT_SYSTEMIMAGE): $(FULL_SYSTEMIMAGE_DEPS) $(INSTALLED_FILES_FILE) $(BUILD_I
 
 INSTALLED_SYSTEMIMAGE := $(PRODUCT_OUT)/system.img
 SYSTEMIMAGE_SOURCE_DIR := $(TARGET_OUT)
-
-# The system partition needs room for the recovery image as well.  We
-# now store the recovery image as a binary patch using the boot image
-# as the source (since they are very similar).  Generate the patch so
-# we can see how big it's going to be, and include that in the system
-# image size check calculation.
-ifneq ($(INSTALLED_BOOTIMAGE_TARGET),)
-ifneq ($(INSTALLED_RECOVERYIMAGE_TARGET),)
-ifneq ($(BOARD_USES_FULL_RECOVERY_IMAGE),true)
-ifneq (,$(filter true, $(BOARD_BUILD_SYSTEM_ROOT_IMAGE) $(BOARD_INCLUDE_RECOVERY_DTBO)))
-diff_tool := $(HOST_OUT_EXECUTABLES)/bsdiff
-else
-diff_tool := $(HOST_OUT_EXECUTABLES)/imgdiff
-endif
-ifeq ($(TARGET_NOT_USE_GZIP_RECOVERY_RAMDISK),true)
-diff_tool := $(HOST_OUT_EXECUTABLES)/bsdiff
-endif
-intermediates := $(call intermediates-dir-for,PACKAGING,recovery_patch)
-ifndef BOARD_CANT_BUILD_RECOVERY_FROM_BOOT_PATCH
-RECOVERY_FROM_BOOT_PATCH := $(intermediates)/recovery_from_boot.p
-else
-RECOVERY_FROM_BOOT_PATCH :=
-endif
-$(RECOVERY_FROM_BOOT_PATCH): PRIVATE_DIFF_TOOL := $(diff_tool)
-$(RECOVERY_FROM_BOOT_PATCH): \
-		$(INSTALLED_RECOVERYIMAGE_TARGET) \
-		$(INSTALLED_BOOTIMAGE_TARGET) \
-		$(diff_tool)
-	@echo "Construct recovery from boot"
-	mkdir -p $(dir $@)
-	$(PRIVATE_DIFF_TOOL) $(INSTALLED_BOOTIMAGE_TARGET) $(INSTALLED_RECOVERYIMAGE_TARGET) $@
-else # $(BOARD_USES_FULL_RECOVERY_IMAGE) == true
-RECOVERY_FROM_BOOT_PATCH := $(INSTALLED_RECOVERYIMAGE_TARGET)
-endif # BOARD_USES_FULL_RECOVERY_IMAGE
-endif # INSTALLED_RECOVERYIMAGE_TARGET
-endif # INSTALLED_BOOTIMAGE_TARGET
 
 $(INSTALLED_SYSTEMIMAGE): $(BUILT_SYSTEMIMAGE) $(RECOVERY_FROM_BOOT_PATCH)
 	@echo "Install system fs image: $@"
