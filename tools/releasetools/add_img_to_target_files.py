@@ -647,6 +647,7 @@ def AddImagesToTargetFiles(filename):
   OPTIONS.info_dict = common.LoadInfoDict(OPTIONS.input_tmp, OPTIONS.input_tmp)
 
   has_recovery = OPTIONS.info_dict.get("no_recovery") != "true"
+  use_two_step_recovery = (OPTIONS.info_dict.get("no_two_step_recovery") != "true")
 
   # {vendor,product}.img is unlike system.img or system_other.img. Because it
   # could be built from source, or dropped into target_files.zip as a prebuilt
@@ -709,18 +710,19 @@ def AddImagesToTargetFiles(filename):
       if output_zip:
         recovery_image.AddToZip(output_zip)
 
-      banner("recovery (two-step image)")
-      # The special recovery.img for two-step package use.
-      recovery_two_step_image = common.GetBootableImage(
-          "IMAGES/recovery-two-step.img", "recovery-two-step.img",
-          OPTIONS.input_tmp, "RECOVERY", two_step_image=True)
-      assert recovery_two_step_image, "Failed to create recovery-two-step.img."
-      recovery_two_step_image_path = os.path.join(
-          OPTIONS.input_tmp, "IMAGES", "recovery-two-step.img")
-      if not os.path.exists(recovery_two_step_image_path):
-        recovery_two_step_image.WriteToDir(OPTIONS.input_tmp)
-        if output_zip:
-          recovery_two_step_image.AddToZip(output_zip)
+      if use_two_step_recovery:
+        banner("recovery (two-step image)")
+        # The special recovery.img for two-step package use.
+        recovery_two_step_image = common.GetBootableImage(
+            "IMAGES/recovery-two-step.img", "recovery-two-step.img",
+            OPTIONS.input_tmp, "RECOVERY", two_step_image=True)
+        assert recovery_two_step_image, "Failed to create recovery-two-step.img."
+        recovery_two_step_image_path = os.path.join(
+            OPTIONS.input_tmp, "IMAGES", "recovery-two-step.img")
+        if not os.path.exists(recovery_two_step_image_path):
+          recovery_two_step_image.WriteToDir(OPTIONS.input_tmp)
+          if output_zip:
+            recovery_two_step_image.AddToZip(output_zip)
 
   banner("system")
   partitions['system'] = AddSystem(
