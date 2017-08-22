@@ -130,30 +130,6 @@ SKIP_BOOT_JARS_CHECK := true
 endif
 endif
 
-#
-# -----------------------------------------------------------------
-# Validate ADDITIONAL_DEFAULT_PROPERTIES.
-ifneq ($(ADDITIONAL_DEFAULT_PROPERTIES),)
-$(error ADDITIONAL_DEFAULT_PROPERTIES must not be set before here: $(ADDITIONAL_DEFAULT_PROPERTIES))
-endif
-
-#
-# -----------------------------------------------------------------
-# Validate ADDITIONAL_BUILD_PROPERTIES.
-ifneq ($(ADDITIONAL_BUILD_PROPERTIES),)
-$(error ADDITIONAL_BUILD_PROPERTIES must not be set before here: $(ADDITIONAL_BUILD_PROPERTIES))
-endif
-
-ADDITIONAL_BUILD_PROPERTIES :=
-
-#
-# -----------------------------------------------------------------
-# Validate ADDITIONAL_PRODUCT_PROPERTIES.
-ifneq ($(ADDITIONAL_PRODUCT_PROPERTIES),)
-$(error ADDITIONAL_PRODUCT_PROPERTIES must not be set before here: $(ADDITIONAL_PRODUCT_PROPERTIES))
-endif
-
-ADDITIONAL_PRODUCT_PROPERTIES :=
 
 #
 # -----------------------------------------------------------------
