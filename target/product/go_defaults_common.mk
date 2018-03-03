@@ -18,7 +18,6 @@
 
 # Set lowram options
 PRODUCT_PROPERTY_OVERRIDES += \
-     ro.config.low_ram=true \
      ro.lmk.critical_upgrade=true \
      ro.lmk.upgrade_pressure=40 \
      ro.lmk.downgrade_pressure=60 \
@@ -52,11 +51,6 @@ PRODUCT_DEX_PREOPT_BOOT_IMAGE_PROFILE_LOCATION := frameworks/base/config/boot-im
 # b/65591595.
 PRODUCT_PROPERTY_OVERRIDES += \
      pm.dexopt.shared=quicken
-
-# Default heap sizes. Allow up to 256m for large heaps to make sure a single app
-# doesn't take all of the RAM.
-PRODUCT_PROPERTY_OVERRIDES += dalvik.vm.heapgrowthlimit=128m
-PRODUCT_PROPERTY_OVERRIDES += dalvik.vm.heapsize=256m
 
 # Do not generate libartd.
 PRODUCT_ART_TARGET_INCLUDE_DEBUG_BUILD := false
