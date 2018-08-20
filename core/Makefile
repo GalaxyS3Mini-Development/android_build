@@ -3191,6 +3191,9 @@ endif
 $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) \
 		build/make/tools/releasetools/ota_from_target_files
 	@echo "Package OTA: $@"
+	$(hide) mkdir -p $(patsubst %.zip,%,$(BUILT_TARGET_FILES_PACKAGE))/RECOVERY/RAMDISK/etc/
+	$(hide) cp $(recovery_fstab) \
+		$(patsubst %.zip,%,$(BUILT_TARGET_FILES_PACKAGE))/RECOVERY/RAMDISK/etc/recovery.fstab
 	$(hide) PATH=$(foreach p,$(INTERNAL_USERIMAGES_BINARY_PATHS),$(p):)$$PATH MKBOOTIMG=$(MKBOOTIMG) \
 	   build/make/tools/releasetools/ota_from_target_files -v \
 	   --block \
