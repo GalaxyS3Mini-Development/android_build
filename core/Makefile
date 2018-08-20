@@ -1556,6 +1556,8 @@ $(recovery_uncompressed_ramdisk): $(MKBOOTFS) $(ADBD) \
 		$(call build-recoveryramdisk)
 		@echo ----- Making uncompressed recovery ramdisk ------
 		$(hide) $(MKBOOTFS) -d $(TARGET_OUT) $(TARGET_RECOVERY_ROOT_OUT) > $@
+		@echo ----- Copy uncompressed recovery ------
+		$(hide) cp $(PRODUCT_OUT)/ramdisk-recovery.cpio $(PRODUCT_OUT)/install/bin/recovery.cpio
 
 $(recovery_ramdisk): $(MINIGZIP) \
 		$(recovery_uncompressed_ramdisk)
