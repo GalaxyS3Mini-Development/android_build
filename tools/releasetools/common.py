@@ -1372,6 +1372,11 @@ class DeviceSpecificParams(object):
     used to resize the system partition after a block based installation."""
     return self._DoCall("FullOTA_PostValidate")
 
+  def FullOTA_InstallNew(self):
+    """Called after installing and validating /ramdisk; typically this is
+    used to resize the ramdisk partition after a recovery installation."""
+    return self._DoCall("FullOTA_InstallNew")
+
   def IncrementalOTA_Assertions(self):
     """Called after emitting the block of assertions at the top of an
     incremental OTA package.  Implementations can add whatever
