@@ -1890,6 +1890,8 @@ def MakeRecoveryPatch(input_dir, output_sink, recovery_img, boot_img,
     info_dict: A dict returned by common.LoadInfoDict() on the input
         target_files. Will use OPTIONS.info_dict if None has been given.
   """
+  pass
+
   if info_dict is None:
     info_dict = OPTIONS.info_dict
 
