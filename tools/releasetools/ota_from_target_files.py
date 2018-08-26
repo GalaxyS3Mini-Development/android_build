@@ -166,6 +166,7 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
 
 from __future__ import print_function
 
+import copy
 import multiprocessing
 import os.path
 import shlex
@@ -333,6 +334,7 @@ class BuildInfo(object):
   def WriteMountOemScript(self, script):
     assert self.oem_props is not None
     recovery_mount_options = self.info_dict.get("recovery_mount_options")
+    recovery_mount_options = "ext4=max_batch_time=0,commit=1,data=ordered,barrier=1,errors=panic,nodelalloc"
     script.Mount("/oem", recovery_mount_options)
 
   def WriteDeviceAssertions(self, script, oem_no_mount):
@@ -1128,6 +1130,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     system_diff.WriteScript(script, output_zip)
   else:
     script.FormatPartition("/system")
+    recovery_mount_options = "ext4=max_batch_time=0,commit=1,data=ordered,barrier=1,errors=panic,nodelalloc"
     script.Mount("/system", recovery_mount_options)
     if not has_recovery_patch:
       script.UnpackPackageDir("recovery", "/system")
@@ -1162,6 +1165,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
       vendor_diff.WriteScript(script, output_zip)
     else:
       script.FormatPartition("/vendor")
+      recovery_mount_options = "ext4=max_batch_time=0,commit=1,data=ordered,barrier=1,errors=panic,nodelalloc"
       script.Mount("/vendor", recovery_mount_options)
       script.UnpackPackageDir("vendor", "/vendor")
 
@@ -1226,8 +1230,8 @@ endif;
   script.AddToZip(input_zip, output_zip, input_path=OPTIONS.updater_binary)
   metadata["ota-required-cache"] = str(script.required_cache)
 
-  common.ZipWriteStr(output_zip, "system/build.prop",
-                     ""+input_zip.read("SYSTEM/build.prop"))
+  #common.ZipWriteStr(output_zip, "system/build.prop",
+  #                   ""+input_zip.read("SYSTEM/build.prop"))
 
   # We haven't written the metadata entry, which will be done in
   # FinalizeMetadata.
@@ -2314,6 +2318,7 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
 
   recovery_mount_options = OPTIONS.source_info_dict.get(
       "recovery_mount_options")
+  recovery_mount_options = "ext4=max_batch_time=0,commit=1,data=ordered,barrier=1,errors=panic,nodelalloc"
   source_oem_props = OPTIONS.source_info_dict.get("oem_fingerprint_properties")
   target_oem_props = OPTIONS.target_info_dict.get("oem_fingerprint_properties")
   oem_dicts = None
@@ -2689,6 +2694,7 @@ endif;
 endif;
 """ % bcb_dev)
 
+  recovery_mount_options = "ext4=max_batch_time=0,commit=1,data=ordered,barrier=1,errors=panic,nodelalloc"
   if OPTIONS.verify and system_diff:
     script.Print("Remounting and verifying system partition files...")
     script.Unmount("/system")

@@ -375,6 +375,26 @@ class EdifyGenerator(object):
 
   def SetPermissions(self, fn, uid, gid, mode, selabel, capabilities):
     """Set file ownership and permissions."""
+    if fn == "/system":
+      uid = 0
+      gid = 0
+      mode = 0755
+      selabel = "u:object_r:system_file:s0"
+      capabilities = "0x0"
+    elif selabel is None:
+      # comment line below for for debugging
+      return
+      s = ""
+      with open("/tmp/setpermissions.txt", "a+") as f:
+        #for t in (fn, uid, gid, mode, capabilities):
+        s += "fn: %s %s\n" % (str(fn), dir(fn))
+        s += "uid: %s %s\n" % (str(uid), dir(uid))
+        s += "gid: %s %s\n" % (str(gid), dir(gid))
+        s += "mode: %s %s\n" % (str(mode), dir(mode))
+        s += "selabel: %s %s\n" % (str(selabel), dir(selabel))
+        s += "capabilities: %s %s\n" % (str(capabilities), dir(capabilities))
+        f.write(s)
+      return
     if not self.info.get("use_set_metadata", False):
       self.script.append('set_perm(%d, %d, 0%o, "%s");' % (uid, gid, mode, fn))
     else:
