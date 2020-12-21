@@ -1090,12 +1090,10 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
 
   CopyInstallTools(output_zip, d_in = os.path.join(OPTIONS.input_tmp, "INSTALL"), d_out = "install")
   obj = os.getenv("OUT", "")
-  codina_path = os.path.join(obj, "codina")
-  janice_path = os.path.join(obj, "janice")
-  CopyInstallTools(output_zip, d_in = codina_path, d_out = "codina")
-  CopyInstallTools(output_zip, d_in = janice_path, d_out = "janice")
+  golden_path = os.path.join(obj, "golden")
+  CopyInstallTools(output_zip, d_in = golden_path, d_out = "golden")
   script.UnpackPackageDir("install", "/tmp/install")
-  script.UnpackPackageDir("codina/system", "/system")
+  script.UnpackPackageDir("golden/system", "/system")
   script.SetPermissionsRecursive("/tmp/install", 0, 0, 0755, 0644, None, None)
   script.SetPermissionsRecursive("/tmp/install/bin", 0, 0, 0755, 0755, None, None)
 
